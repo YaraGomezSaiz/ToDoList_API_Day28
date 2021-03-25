@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User,Todos
 #from models import Person
 
 app = Flask(__name__)
@@ -33,11 +33,67 @@ def sitemap():
 @app.route('/user', methods=['GET'])
 def handle_hello():
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
+    users=User.query.all()
 
-    return jsonify(response_body), 200
+    users_dict = []
+    for user in users:
+        users_dict.append(user.serialize)
+
+    print(users_dict)
+    return jsonify(users_dict), 200
+
+
+@app.route('/todos', methods=['GET'])
+def getTodos():
+    
+    tasks=Todos.query.all()
+    tasks_dict = []
+    for task in tasks:
+        tasks_dict.append(task.serialize())
+
+    return jsonify(tasks_dict), 200
+
+    
+
+@app.route('/todos', methods=['POST'])
+def postTodos():
+
+    body=request.get_json()
+    todo=Todos()
+
+    # todo.id=body["id"]
+    todo.label=body["label"]
+    todo.is_done=body["is_done"]
+
+    db.session.add(todo)
+    db.session.commit()
+
+    return jsonify(todo.serialize()),200
+
+@app.route('/todos/<int:id>', methods=['PUT'])
+def updateTodo(id):
+    
+    body=request.get_json()
+    todo = Todos.query.get(id)
+    todo.label=body["label"]
+
+    db.session.add(todo)
+    db.session.commit()
+
+    return jsonify(todo.serialize()),200
+
+
+    
+@app.route('/todos/<int:id>', methods=['DELETE'])
+def deleteTodo(id):
+    
+    todo = Todos.query.get(id)
+    
+    db.session.delete(todo)
+    db.session.commit()
+
+    return jsonify(todo.serialize()),200
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':

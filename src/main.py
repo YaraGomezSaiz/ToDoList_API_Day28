@@ -9,6 +9,7 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User,Todos
+from json_helper import jsonify_array
 #from models import Person
 
 app = Flask(__name__)
@@ -34,7 +35,6 @@ def sitemap():
 def handle_hello():
 
     users=User.query.all()
-
     users_dict = []
     for user in users:
         users_dict.append(user.serialize)
@@ -42,28 +42,29 @@ def handle_hello():
     print(users_dict)
     return jsonify(users_dict), 200
 
-
+# GET todas las tareas del modelo Todos
 @app.route('/todos', methods=['GET'])
 def getTodos():
     
-    tasks=Todos.query.all()
-    tasks_dict = []
-    for task in tasks:
-        tasks_dict.append(task.serialize())
-
-    return jsonify(tasks_dict), 200
-
-    
-
+    tasks=Todos.get_all()
+    return jsonify_array(tasks), 200
+   
+# POST- Crear una tarea nueva en la tabla Todos
 @app.route('/todos', methods=['POST'])
 def postTodos():
 
-    body=request.get_json()
-    todo=Todos()
+    # body=request.get_json()
+    # todo= Todos(body["label"], body["is_done"])
+    # todo.set_body(body)
+    todo=Todos.set_body(request.get_json())
 
-    # todo.id=body["id"]
-    todo.label=body["label"]
-    todo.is_done=body["is_done"]
+    
+    # body=request.get_json()
+    # todo=Todos()
+
+    # # todo.id=body["id"]
+    # todo.label=body["label"]
+    # todo.is_done=body["is_done"]
 
     db.session.add(todo)
     db.session.commit()

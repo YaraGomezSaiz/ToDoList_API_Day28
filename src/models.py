@@ -19,8 +19,13 @@ class User(db.Model):
         }
 
 
+class BaseModel():
+    @classmethod
+    def get_all(cls):
+        return cls.query.all()
+    
 
-class Todos(db.Model):
+class Todos(db.Model,BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     label = db.Column(db.String(120), unique=True, nullable=False)
     is_done= db.Column(db.Boolean(), unique=False, nullable=False)
@@ -33,5 +38,25 @@ class Todos(db.Model):
             "id": self.id,
             "label": self.label,
             "is_done": self.is_done
-            # do not serialize the password, its a security breach
         }
+
+
+    # def __init__(self,label,is_done=False):
+    #     self.label=label
+    #     self.is_done=is_done
+
+
+    @classmethod
+    def create_task(cls):
+        # task=cls
+        # task.get_body()
+        return cls.get_body(body_json)
+
+    @classmethod
+    def set_body(cls,body_json):
+        todo=cls()
+        todo.label=body_json["label"]
+        todo.is_done=body_json["is_done"]
+        return todo
+
+   

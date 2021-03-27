@@ -46,11 +46,11 @@ class Todos(db.Model,BaseModel):
     #     self.is_done=is_done
 
 
-    @classmethod
-    def create_task(cls):
-        # task=cls
-        # task.get_body()
-        return cls.get_body(body_json)
+    # @classmethod
+    # def create_task(cls):
+    #     # task=cls
+    #     # task.get_body()
+    #     return cls.get_body(body_json)
 
     @classmethod
     def set_body(cls,body_json):

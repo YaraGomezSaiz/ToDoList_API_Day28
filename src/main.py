@@ -33,66 +33,51 @@ def sitemap():
 
 @app.route('/user', methods=['GET'])
 def handle_hello():
-
     users=User.query.all()
     users_dict = []
     for user in users:
         users_dict.append(user.serialize)
-
-    print(users_dict)
     return jsonify(users_dict), 200
+
+
 
 # GET todas las tareas del modelo Todos
 @app.route('/todos', methods=['GET'])
 def getTodos():
-    
+    #get todos los datos de la base de datos.
     tasks=Todos.get_all()
+    # devuelve el array de elementos serializado
     return jsonify_array(tasks), 200
    
 # POST- Crear una tarea nueva en la tabla Todos
 @app.route('/todos', methods=['POST'])
 def postTodos():
-
-    # body=request.get_json()
-    # todo= Todos(body["label"], body["is_done"])
-    # todo.set_body(body)
-    todo=Todos.set_body(request.get_json())
-
-    
-    # body=request.get_json()
-    # todo=Todos()
-
-    # # todo.id=body["id"]
-    # todo.label=body["label"]
-    # todo.is_done=body["is_done"]
-
-    db.session.add(todo)
-    db.session.commit()
-
+    # get body
+    body=request.get_json()
+    # instancia modelo Todos y se inicializa con el valor del body
+    todo= Todos(body["label"], body["is_done"])
+    # guardar task en base datos
+    todo.save()
     return jsonify(todo.serialize()),200
 
+#UPDATE todo 
 @app.route('/todos/<int:id>', methods=['PUT'])
 def updateTodo(id):
-    
+    #get todo guardado en base de datos con id='x'
+    todo=Todos.getId(id)
+    #get body nuevo para actualizar todo
     body=request.get_json()
-    todo = Todos.query.get(id)
-    todo.label=body["label"]
-
-    db.session.add(todo)
-    db.session.commit()
-
+    todo.updateTodo(body)
+    #guardar todo updated en base datos
+    todo.save()
     return jsonify(todo.serialize()),200
 
-
-    
+#DELETE todo
 @app.route('/todos/<int:id>', methods=['DELETE'])
 def deleteTodo(id):
-    
-    todo = Todos.query.get(id)
-    
-    db.session.delete(todo)
-    db.session.commit()
-
+    #get todo guardado en base de datos con id='x'
+    todo = Todos.getId(id)
+    todo.delete()
     return jsonify(todo.serialize()),200
 
 
